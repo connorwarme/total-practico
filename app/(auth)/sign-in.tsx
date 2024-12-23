@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView, Image, Alert } from "react-native";
 import React, { useState } from "react";
 import { images } from "@/constants";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,6 +6,7 @@ import { Link } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
+import { signIn } from "@/lib/appwrite";
 
 interface FormProps {
   email: string;
@@ -19,8 +20,21 @@ const SignIn = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log(form);
+    if (!form.email || !form.password) {
+      Alert.alert("Error", "Please fill in all fields.");
+    }
+    setIsSubmitting(true);
+    try {
+      const newUser = await signIn(form.email, form.password);
+      console.log(newUser);
+      // set it to global state
+    } catch (error) {
+      Alert.alert("Error", (error as any).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

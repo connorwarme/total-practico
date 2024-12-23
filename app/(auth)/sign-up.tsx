@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView, Image, Alert } from "react-native";
 import React, { useState } from "react";
 import { images } from "@/constants";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,9 +22,21 @@ const SignUp = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log(form);
-    createUser();
+    if (!form.email || !form.password || !form.username) {
+      Alert.alert("Error", "Please fill in all fields.");
+    }
+    setIsSubmitting(true);
+    try {
+      const newUser = await createUser(form);
+      console.log(newUser);
+      // set it to global state
+    } catch (error) {
+      Alert.alert("Error", (error as any).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

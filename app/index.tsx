@@ -4,11 +4,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import images from "../constants/images";
 import { useRouter, Redirect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-
+import { useGlobalContext } from "@/context/GlobalProvider";
 import "../assets/styles/global.css";
 import CustomButton from "@/components/CustomButton";
 
 export default function Index() {
+  const { isLoading, isLoggedIn } = useGlobalContext();
+  // use context to see if user is logged in; if so, redirect home
+  if (!isLoading && isLoggedIn) return <Redirect href="/home" />;
+
   const router = useRouter();
 
   // contentContainerStyle so whole screen is scrollable
