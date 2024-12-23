@@ -1,6 +1,8 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import React, { useState } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { VideoView, useVideoPlayer } from "expo-video";
+import { useEvent } from "expo";
 
 interface VideoCardProps {
   video: {
@@ -24,7 +26,14 @@ const VideoCard = ({
     creator: { username, avatar },
   },
 }: VideoCardProps) => {
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [vidIsPlaying, setIsPlaying] = useState<boolean>(false);
+
+  const player = useVideoPlayer(
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+  );
+  const { isPlaying } = useEvent(player, "playingChange", {
+    isPlaying: player.playing,
+  });
 
   return (
     <View className="flex-col items-center px-4 mb-14">
@@ -61,13 +70,21 @@ const VideoCard = ({
         </View>
       </View>
       <View className="flex-1 w-full">
-        {isPlaying ? (
-          <Text className="text-white">Playing</Text>
+        {vidIsPlaying ? (
+          <VideoView
+            player={player}
+            style={styles.video}
+            allowsFullscreen
+            allowsPictureInPicture
+          />
         ) : (
           <TouchableOpacity
             className="w-full h-60 rounded-xl mt-3 relative justify-center items-center"
             activeOpacity={0.7}
-            onPress={() => setIsPlaying(true)}
+            onPress={() => {
+              setIsPlaying(true);
+              player.play();
+            }}
           >
             <Image
               source={{ uri: thumbnail }}
@@ -88,3 +105,12 @@ const VideoCard = ({
 };
 
 export default VideoCard;
+
+const styles = StyleSheet.create({
+  video: {
+    width: "100%",
+    height: 240,
+    borderRadius: "35px",
+    marginHorizontal: 5,
+  },
+});

@@ -1,22 +1,36 @@
-import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
 import React, { useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { usePathname, router } from "expo-router";
 
 interface SearchProps {
-  value: string;
+  value?: string;
   placeholder: string;
-  handleChangeText: (e: string) => void;
+  initialQuery?: string;
   otherStyles?: string;
 }
 
 const SearchInput: React.FC<SearchProps> = ({
   value,
   placeholder,
-  handleChangeText,
+  initialQuery,
   otherStyles,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const [query, setQuery] = useState<string>(initialQuery || "");
+  const pathname = usePathname();
+
+  const handleChangeQuery = (e: string) => {
+    setQuery(e);
+  };
 
   return (
     <View
@@ -25,16 +39,30 @@ const SearchInput: React.FC<SearchProps> = ({
       }`}
     >
       <TextInput
-        value={value}
+        value={query}
         placeholder={placeholder}
-        onChangeText={handleChangeText}
+        onChangeText={(e) => setQuery(e)}
         className="flex-1 text-white font-pregular text-base mt-0.5 "
-        placeholderTextColor="#7b7b8b"
+        placeholderTextColor="#cdcde0"
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         {...props}
       />
-      <TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          if (!query) {
+            return Alert.alert(
+              "Missing query",
+              "Please enter a query to search the database."
+            );
+          }
+          if (pathname.startsWith("/search")) {
+            router.setParams({ query });
+          } else {
+            router.push(`/search/${query}`);
+          }
+        }}
+      >
         <Ionicons name="search-circle-sharp" size={30} color="white" />
       </TouchableOpacity>
     </View>

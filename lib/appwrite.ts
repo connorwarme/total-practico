@@ -121,3 +121,18 @@ export const getLatestPosts = async () => {
     throw new Error(error instanceof Error ? error.message : String(error));
   }
 };
+
+export const searchPosts = async (query: string) => {
+  try {
+    const posts = await databases.listDocuments(
+      config.databaseId,
+      config.videoCollectionId,
+      [Query.search("title", query)]
+    );
+    if (!posts) throw Error;
+    return posts.documents;
+  } catch (error) {
+    console.error(error);
+    throw new Error(error instanceof Error ? error.message : String(error));
+  }
+};
