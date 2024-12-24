@@ -6,7 +6,8 @@ import { Link } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
-import { createUser } from "@/lib/appwrite";
+import { createUser, getCurrentUser } from "@/lib/appwrite";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
 interface FormProps {
   username: string;
@@ -15,6 +16,7 @@ interface FormProps {
 }
 
 const SignUp = () => {
+  const { setUser, setIsLoggedIn } = useGlobalContext();
   const [form, setForm] = useState<FormProps>({
     username: "",
     email: "",
@@ -32,6 +34,9 @@ const SignUp = () => {
       const newUser = await createUser(form);
       console.log(newUser);
       // set it to global state
+      const result = await getCurrentUser();
+      setUser(newUser);
+      setIsLoggedIn(true);
     } catch (error) {
       Alert.alert("Error", (error as any).message);
     } finally {

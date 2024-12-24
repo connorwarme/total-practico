@@ -2,11 +2,12 @@ import { View, Text, ScrollView, Image, Alert } from "react-native";
 import React, { useState } from "react";
 import { images } from "@/constants";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
-import { signIn } from "@/lib/appwrite";
+import { getCurrentUser, signIn } from "@/lib/appwrite";
+import { useGlobalContext } from "@/context/GlobalProvider";
 
 interface FormProps {
   email: string;
@@ -14,6 +15,7 @@ interface FormProps {
 }
 
 const SignIn = () => {
+  const { setUser, setIsLoggedIn } = useGlobalContext();
   const [form, setForm] = useState<FormProps>({
     email: "",
     password: "",
@@ -29,7 +31,10 @@ const SignIn = () => {
     try {
       const newUser = await signIn(form.email, form.password);
       console.log(newUser);
-      // set it to global state
+      const result = await getCurrentUser();
+      setUser(newUser);
+      setIsLoggedIn(true);
+      router.replace("/home");
     } catch (error) {
       Alert.alert("Error", (error as any).message);
     } finally {
